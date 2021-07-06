@@ -20,6 +20,7 @@ HEADERS += \
     benchmarker.h \
     hostosinfo.h \
     json.h \
+    osspecificaspects.h \
     qtcassert.h \
     stringutils.h \
     utils_global.h \

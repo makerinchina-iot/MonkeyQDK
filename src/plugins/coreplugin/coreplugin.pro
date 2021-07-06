@@ -10,10 +10,13 @@ LIBS += \
     -lextensionsystem
 
 HEADERS += \
-    coreplugin.h
+    core_global.h \
+    coreplugin.h \
+    icore.h
 
 SOURCES += \
-    coreplugin.cpp
+    coreplugin.cpp \
+    icore.cpp
 
 DISTFILES += \
     coreplugin.json
