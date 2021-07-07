@@ -22,6 +22,9 @@ public:
 private:
     QScopedPointer<QMainWindow> m_mainWindow;
 
+private slots:
+    void settingsDialog();
+
 signals:
 
 };

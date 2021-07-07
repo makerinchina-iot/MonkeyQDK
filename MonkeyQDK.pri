@@ -14,6 +14,10 @@ APP_PLUGIN_PATH = $$PWD/build/bin/plugins
 INCLUDEPATH += $$PWD/src/libs
 DEPENDPATH  += $$PWD/src/libs
 
+//coreplugin
+INCLUDEPATH += $$PWD/src/plugins
+DEPENDPATH  += $$PWD/src/plugins
+
 #library name
 #defineReplace(replaceLibName) {
 #   unset(LIBRARY_NAME)

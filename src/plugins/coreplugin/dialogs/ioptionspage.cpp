@@ -96,7 +96,8 @@ using namespace Utils;
 */
 QIcon Core::IOptionsPage::categoryIcon() const
 {
-    return m_categoryIcon.icon();
+    QIcon icon(m_category);
+    return icon;
 }
 
 /*!
@@ -167,7 +168,8 @@ void Core::IOptionsPage::finish()
 */
 void Core::IOptionsPage::setCategoryIconPath(const QString &categoryIconPath)
 {
-    m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
+//    m_categoryIcon = Icon({{categoryIconPath, Theme::PanelTextColorDark}}, Icon::Tint);
+    m_category = categoryIconPath;
 }
 
 /*!
@@ -279,5 +281,6 @@ const QList<Core::IOptionsPageProvider *> Core::IOptionsPageProvider::allOptions
 
 QIcon Core::IOptionsPageProvider::categoryIcon() const
 {
-    return m_categoryIcon.icon();
+    QIcon icon(m_categoryIcon);
+    return icon;
 }

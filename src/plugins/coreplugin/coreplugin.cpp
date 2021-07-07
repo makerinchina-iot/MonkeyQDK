@@ -2,6 +2,15 @@
 
 #include <QLabel>
 #include <QDebug>
+#include <QAction>
+#include <QToolBar>
+
+#include <coreplugin/dialogs/ioptionspage.h>
+#include <coreplugin/dialogs/settingsdialog.h>
+
+#include "systemsettings.h"
+
+using namespace Core;
 
 bool CorePlugin::initialize(const QStringList &, QString *)
 {
@@ -16,14 +25,26 @@ bool CorePlugin::initialize(const QStringList &, QString *)
     mwin->setMinimumSize(800,400);
     mwin->setWindowTitle("MonkeyQDK 0.01 by MakerInChina");
 
+    QAction *actSetting = new QAction("setting");
+    connect(actSetting,&QAction::triggered,this,&CorePlugin::settingsDialog);
+
+    QToolBar *mainToolbar = new QToolBar("ToolBar",mwin);
+
+    mainToolbar->addAction(actSetting);
+
+    mwin->addToolBar(Qt::TopToolBarArea,mainToolbar);
+
     m_mainWindow.reset(mwin);
+
+    //system settings
+    new SystemSettings();
 
     return true;
 }
 
 void CorePlugin::extensionsInitialized()
 {
-//    m_mainWindow->extensionsInitialized();
+
 }
 
 QObject *CorePlugin::remoteCommand(const QStringList &, const QString &, const QStringList &)
@@ -31,4 +52,12 @@ QObject *CorePlugin::remoteCommand(const QStringList &, const QString &, const Q
     m_mainWindow->show();
 
     return nullptr;
+}
+
+void CorePlugin::settingsDialog()
+{
+    SettingsDialog *settingDialog = new SettingsDialog;
+
+    settingDialog->exec();
+
 }

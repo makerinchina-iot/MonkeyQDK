@@ -7,18 +7,28 @@ DEFINES += COREPLUGIN_LIBRARY
 TARGET = coreplugin
 
 LIBS += \
-    -lextensionsystem
+    -lutils \
+    -lextensionsystem \
+
 
 HEADERS += \
     core_global.h \
     coreplugin.h \
-    icore.h
+    dialogs/ioptionspage.h \
+    dialogs/settingsdialog.h \
+    systemsettings.h
 
 SOURCES += \
     coreplugin.cpp \
-    icore.cpp
+    dialogs/ioptionspage.cpp \
+    dialogs/settingsdialog.cpp \
+    systemsettings.cpp
 
 DISTFILES += \
     coreplugin.json
+
+FORMS += \
+    SystemSettings.ui \
+    dialogs/settingsdialog.ui
 
 
