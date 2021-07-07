@@ -5,6 +5,9 @@
 #include <extensionsystem/iplugin.h>
 
 #include <QMainWindow>
+#include <QButtonGroup>
+#include <QStackedWidget>
+#include <QVBoxLayout>
 
 class CorePlugin : public ExtensionSystem::IPlugin
 {
@@ -21,6 +24,10 @@ public:
 
 private:
     QScopedPointer<QMainWindow> m_mainWindow;
+
+    QButtonGroup *m_pageButtons;
+    QVBoxLayout *m_buttonLayout;
+    QStackedWidget *m_pageStacks;
 
 private slots:
     void settingsDialog();

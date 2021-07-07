@@ -16,13 +16,19 @@ HEADERS += \
     coreplugin.h \
     dialogs/ioptionspage.h \
     dialogs/settingsdialog.h \
-    systemsettings.h
+    fancypage.h \
+    homepage.h \
+    systemsettings.h \
+    toolpage.h
 
 SOURCES += \
     coreplugin.cpp \
     dialogs/ioptionspage.cpp \
     dialogs/settingsdialog.cpp \
-    systemsettings.cpp
+    fancypage.cpp \
+    homepage.cpp \
+    systemsettings.cpp \
+    toolpage.cpp
 
 DISTFILES += \
     coreplugin.json

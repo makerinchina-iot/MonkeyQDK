@@ -18,6 +18,8 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     //model dialog
     this->setModal(true);
 
+    this->setWindowTitle("Options");
+
     //load settings page
     QList<IOptionsPage*> optionPages = IOptionsPage::allOptionsPages();
 

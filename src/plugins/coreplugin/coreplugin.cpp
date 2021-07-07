@@ -4,11 +4,18 @@
 #include <QDebug>
 #include <QAction>
 #include <QToolBar>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/dialogs/settingsdialog.h>
+#include <extensionsystem/pluginmanager.h>
+
+#include <coreplugin/fancypage.h>
 
 #include "systemsettings.h"
+#include "homepage.h"
+#include "toolpage.h"
 
 using namespace Core;
 
@@ -19,10 +26,6 @@ bool CorePlugin::initialize(const QStringList &, QString *)
 
     QMainWindow *mwin = new QMainWindow;
 
-    QLabel *label = new QLabel(mwin);
-    label->setText("corePlugin");
-    mwin->setCentralWidget(label);
-    mwin->setMinimumSize(800,400);
     mwin->setWindowTitle("MonkeyQDK 0.01 by MakerInChina");
 
     QAction *actSetting = new QAction("setting");
@@ -34,16 +37,77 @@ bool CorePlugin::initialize(const QStringList &, QString *)
 
     mwin->addToolBar(Qt::TopToolBarArea,mainToolbar);
 
+    //add page layout
+    QWidget *mainWidget = new QWidget(mwin);
+    QHBoxLayout *mainLayout = new QHBoxLayout(mainWidget);
+    mainWidget->setLayout(mainLayout);
+    m_pageButtons = new QButtonGroup(mainWidget);
+    m_pageStacks = new QStackedWidget(mainWidget);
+    m_buttonLayout = new QVBoxLayout(mainWidget);
+    m_buttonLayout->setContentsMargins(0,0,0,0);
+    m_buttonLayout->setSpacing(0);
+
+    mainLayout->addLayout(m_buttonLayout);
+    mainLayout->addWidget(m_pageStacks);
+    mainLayout->setStretch(0,2);
+    mainLayout->setStretch(1,8);
+
+    mwin->setCentralWidget(mainWidget);
+    mwin->setMinimumSize(800,600);
+
     m_mainWindow.reset(mwin);
 
     //system settings
     new SystemSettings();
+
+    //home page load
+    ExtensionSystem::PluginManager::addObject(new HomePage());
+
+    //tool page load
+    ExtensionSystem::PluginManager::addObject(new ToolPage());
 
     return true;
 }
 
 void CorePlugin::extensionsInitialized()
 {
+   QVector<QObject*> pagesObject = ExtensionSystem::PluginManager::allObjects();
+
+   QPushButton *homeBtn = nullptr;
+
+   for(QObject* objPage:pagesObject){
+       FancyPage *page = qobject_cast<FancyPage*>(objPage);
+
+       if(!page->pageWidget()){
+           continue;
+       }
+
+       qDebug()<<" pages button add:"<<page->pageButton()->text();
+
+       if(page->pageButton()->objectName() == "Home"){
+           homeBtn = page->pageButton();
+       }
+
+       m_pageButtons->addButton(page->pageButton());
+       m_buttonLayout->addWidget(page->pageButton());
+       m_pageStacks->addWidget(page->pageWidget());
+
+       connect(page->pageButton(),&QPushButton::clicked,[=](){
+           m_pageStacks->setCurrentWidget(page->pageWidget());
+           page->pageButton()->setChecked(true);
+       });
+
+       //remove from plugin pool
+       connect(this, &IPlugin::destroyed, this, [=]{
+           ExtensionSystem::PluginManager::removeObject(objPage);
+       });
+   }
+
+   //init page
+   homeBtn->setChecked(true);
+
+   m_buttonLayout->addStretch();
+
 
 }
 
@@ -61,3 +125,4 @@ void CorePlugin::settingsDialog()
     settingDialog->exec();
 
 }
+
