@@ -27,8 +27,12 @@
 
 #include "utils_global.h"
 
+#include "porting.h"
+
 #include <QList>
 #include <QString>
+
+#include <functional>
 
 QT_BEGIN_NAMESPACE
 class QJsonValue;
@@ -38,32 +42,32 @@ namespace Utils {
 
 // Create a usable settings key from a category,
 // for example Editor|C++ -> Editor_C__
-UTILS_EXPORT QString settingsKey(const QString &category);
+QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category);
 
 // Return the common prefix part of a string list:
 // "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo\bar"
-UTILS_EXPORT QString commonPrefix(const QStringList &strings);
+QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings);
 
 // Return the common path of a list of files:
 // "C:\foo\bar1" "C:\foo\bar2"  -> "C:\foo"
-UTILS_EXPORT QString commonPath(const QStringList &files);
+QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files);
 
 // On Linux/Mac replace user's home path with ~
 // Uses cleaned path and tries to use absolute path of "path" if possible
 // If path is not sub of home path, or when running on Windows, returns the input
-UTILS_EXPORT QString withTildeHomePath(const QString &path);
+QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path);
 
 // Removes first unescaped ampersand in text
-UTILS_EXPORT QString stripAccelerator(const QString &text);
+QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text);
 // Quotes all ampersands
-UTILS_EXPORT QString quoteAmpersands(const QString &text);
+QTCREATOR_UTILS_EXPORT QString quoteAmpersands(const QString &text);
 
-UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
+QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out);
 
 // Compare case insensitive and use case sensitive comparison in case of that being equal.
-UTILS_EXPORT int caseFriendlyCompare(const QString &a, const QString &b);
+QTCREATOR_UTILS_EXPORT int caseFriendlyCompare(const QString &a, const QString &b);
 
-class UTILS_EXPORT AbstractMacroExpander
+class QTCREATOR_UTILS_EXPORT AbstractMacroExpander
 {
 public:
     virtual ~AbstractMacroExpander() {}
@@ -83,23 +87,38 @@ private:
     bool expandNestedMacros(const QString &str, int *pos, QString *ret);
 };
 
-UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx);
-UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx);
+QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx);
+QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx);
 
-UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line);
+QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line);
 
-template<typename T, typename Container>
-T makeUniquelyNumbered(const T &preferred, const Container &reserved)
+template<typename T>
+T makeUniquelyNumbered(const T &preferred, const std::function<bool(const T &)> &isOk)
 {
-    if (!reserved.contains(preferred))
+    if (isOk(preferred))
         return preferred;
     int i = 2;
     T tryName = preferred + QString::number(i);
-    while (reserved.contains(tryName))
+    while (!isOk(tryName))
         tryName = preferred + QString::number(++i);
     return tryName;
 }
 
+template<typename T, typename Container>
+T makeUniquelyNumbered(const T &preferred, const Container &reserved)
+{
+    const std::function<bool(const T &)> isOk
+            = [&reserved](const T &v) { return !reserved.contains(v); };
+    return makeUniquelyNumbered(preferred, isOk);
+}
 
+QTCREATOR_UTILS_EXPORT QString formatElapsedTime(qint64 elapsed);
 
+/* This function is only necessary if you need to match the wildcard expression against a
+ * string that might contain path separators - otherwise
+ * QRegularExpression::wildcardToRegularExpression() can be used.
+ * Working around QRegularExpression::wildcardToRegularExpression() taking native separators
+ * into account and handling them to disallow matching a wildcard characters.
+ */
+QTCREATOR_UTILS_EXPORT QString wildcardToRegularExpression(const QString &original);
 } // namespace Utils

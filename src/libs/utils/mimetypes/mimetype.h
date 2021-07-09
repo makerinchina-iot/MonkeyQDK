@@ -46,7 +46,6 @@
 
 QT_BEGIN_NAMESPACE
 class QFileinfo;
-class QStringList;
 QT_END_NAMESPACE
 
 namespace Utils {
@@ -60,7 +59,7 @@ class MimeBinaryProvider;
 class MimeTypePrivate;
 }
 
-class UTILS_EXPORT MimeType
+class QTCREATOR_UTILS_EXPORT MimeType
 {
 public:
     MimeType();
@@ -130,7 +129,7 @@ inline uint qHash(const MimeType &mime) { return qHash(mime.name()); }
 #ifndef QT_NO_DEBUG_STREAM
 QT_BEGIN_NAMESPACE
 class QDebug;
-UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
+QTCREATOR_UTILS_EXPORT QDebug operator<<(QDebug debug, const Utils::MimeType &mime);
 QT_END_NAMESPACE
 #endif
 

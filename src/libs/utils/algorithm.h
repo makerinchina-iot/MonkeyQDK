@@ -25,7 +25,7 @@
 
 #pragma once
 
-//#include "predicates.h"
+#include "predicates.h"
 //#include "optional.h"
 
 #include <qcompilerdetection.h> // for Q_REQUIRED_RESULT
@@ -38,6 +38,7 @@
 #include <unordered_map>
 #include <unordered_set>
 
+#include <QHash>
 #include <QObject>
 #include <QSet>
 #include <QStringList>
@@ -279,6 +280,16 @@ template<template<typename> class C, // result container type
          typename Result = std::decay_t<std::result_of_t<F(Value &)>>,
          typename ResultContainer = C<Result>>
 Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function);
+#ifdef Q_CC_CLANG
+// "Matching of template template-arguments excludes compatible templates"
+// http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0522r0.html (P0522R0)
+// in C++17 makes the above match e.g. C=std::vector even though that takes two
+// template parameters. Unfortunately the following one matches too, and there is no additional
+// partial ordering rule, resulting in an ambiguous call for this previously valid code.
+// GCC and MSVC ignore that issue and follow the standard to the letter, but Clang only
+// enables the new behavior when given -frelaxed-template-template-args .
+// To avoid requiring everyone using this header to enable that feature, keep the old implementation
+// for Clang.
 template<template<typename, typename> class C, // result container type
          typename SC,                          // input container type
          typename F,                           // function type
@@ -286,6 +297,7 @@ template<template<typename, typename> class C, // result container type
          typename Result = std::decay_t<std::result_of_t<F(Value &)>>,
          typename ResultContainer = C<Result, std::allocator<Result>>>
 Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function);
+#endif
 
 // member function without result type deduction:
 template<template<typename...> class C, // result container type
@@ -554,52 +566,56 @@ namespace {
 
 // SetInsertIterator, straight from the standard for insert_iterator
 // just without the additional parameter to insert
-template <class Container>
-  class SetInsertIterator :
-    public std::iterator<std::output_iterator_tag,void,void,void,void>
+template<class Container>
+class SetInsertIterator
 {
 protected:
   Container *container;
 
 public:
-  using container_type = Container;
-  explicit SetInsertIterator (Container &x)
-    : container(&x) {}
-  SetInsertIterator<Container> &operator=(const typename Container::value_type &value)
-    { container->insert(value); return *this; }
-  SetInsertIterator<Container> &operator= (typename Container::value_type &&value)
-    { container->insert(std::move(value)); return *this; }
-  SetInsertIterator<Container >&operator*()
-    { return *this; }
-  SetInsertIterator<Container> &operator++()
-    { return *this; }
-  SetInsertIterator<Container> operator++(int)
-    { return *this; }
+    using iterator_category = std::output_iterator_tag;
+    using container_type = Container;
+    explicit SetInsertIterator(Container &x)
+        : container(&x)
+    {}
+    SetInsertIterator<Container> &operator=(const typename Container::value_type &value)
+    {
+        container->insert(value);
+        return *this;
+    }
+    SetInsertIterator<Container> &operator=(typename Container::value_type &&value)
+    {
+        container->insert(std::move(value));
+        return *this;
+    }
+    SetInsertIterator<Container> &operator*() { return *this; }
+    SetInsertIterator<Container> &operator++() { return *this; }
+    SetInsertIterator<Container> operator++(int) { return *this; }
 };
 
 // for QMap / QHash, inserting a std::pair / QPair
-template <class Container>
-    class MapInsertIterator :
-      public std::iterator<std::output_iterator_tag,void,void,void,void>
-  {
-  protected:
+template<class Container>
+class MapInsertIterator
+{
+protected:
     Container *container;
 
-  public:
+public:
+    using iterator_category = std::output_iterator_tag;
     using container_type = Container;
-    explicit MapInsertIterator (Container &x)
-      : container(&x) {}
-    MapInsertIterator<Container> &operator=(const std::pair<const typename Container::key_type, typename Container::mapped_type> &value)
-      { container->insert(value.first, value.second); return *this; }
-    MapInsertIterator<Container> &operator=(const QPair<typename Container::key_type, typename Container::mapped_type> &value)
-      { container->insert(value.first, value.second); return *this; }
-    MapInsertIterator<Container >&operator*()
-      { return *this; }
-    MapInsertIterator<Container> &operator++()
-      { return *this; }
-    MapInsertIterator<Container> operator++(int)
-      { return *this; }
-  };
+    explicit MapInsertIterator(Container &x)
+        : container(&x)
+    {}
+    MapInsertIterator<Container> &operator=(
+        const std::pair<const typename Container::key_type, typename Container::mapped_type> &value)
+    { container->insert(value.first, value.second); return *this; }
+    MapInsertIterator<Container> &operator=(
+        const QPair<typename Container::key_type, typename Container::mapped_type> &value)
+    { container->insert(value.first, value.second); return *this; }
+    MapInsertIterator<Container> &operator*() { return *this; }
+    MapInsertIterator<Container> &operator++() { return *this; }
+    MapInsertIterator<Container> operator++(int) { return *this; }
+};
 
 // inserter helper function, returns a std::back_inserter for most containers
 // and is overloaded for QSet<> and other containers without push_back, returning custom inserters
@@ -708,6 +724,7 @@ Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function)
     return transform<ResultContainer>(std::forward<SC>(container), function);
 }
 
+#ifdef Q_CC_CLANG
 template<template<typename, typename> class C, // result container type
          typename SC,                          // input container type
          typename F,                           // function type
@@ -718,6 +735,7 @@ Q_REQUIRED_RESULT decltype(auto) transform(SC &&container, F function)
 {
     return transform<ResultContainer>(std::forward<SC>(container), function);
 }
+#endif
 
 // member function without result type deduction:
 template<template<typename...> class C, // result container type
@@ -903,7 +921,7 @@ std::tuple<C, C> partition(const C &container, F predicate)
     reserve(miss, container.size());
     auto hitIns = inserter(hit);
     auto missIns = inserter(miss);
-    for (auto i : container) {
+    for (const auto &i : container) {
         if (predicate(i))
             hitIns = i;
         else
@@ -979,13 +997,13 @@ Container<T> static_container_cast(const Container<Base> &container)
 template <typename Container>
 inline void sort(Container &container)
 {
-    std::sort(std::begin(container), std::end(container));
+    std::stable_sort(std::begin(container), std::end(container));
 }
 
 template <typename Container, typename Predicate>
 inline void sort(Container &container, Predicate p)
 {
-    std::sort(std::begin(container), std::end(container), p);
+    std::stable_sort(std::begin(container), std::end(container), p);
 }
 
 // pointer to member
@@ -994,7 +1012,7 @@ inline void sort(Container &container, R S::*member)
 {
     auto f = std::mem_fn(member);
     using const_ref = typename Container::const_reference;
-    std::sort(std::begin(container), std::end(container),
+    std::stable_sort(std::begin(container), std::end(container),
               [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });
@@ -1006,7 +1024,7 @@ inline void sort(Container &container, R (S::*function)() const)
 {
     auto f = std::mem_fn(function);
     using const_ref = typename Container::const_reference;
-    std::sort(std::begin(container), std::end(container),
+    std::stable_sort(std::begin(container), std::end(container),
               [&f](const_ref a, const_ref b) {
         return f(a) < f(b);
     });
@@ -1272,6 +1290,7 @@ QSet<T> toSet(const QList<T> &list)
 #endif
 }
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
 template<class T>
 QSet<T> toSet(const QVector<T> &vec)
 {
@@ -1285,6 +1304,7 @@ QSet<T> toSet(const QVector<T> &vec)
     return QSet<T>(vec.begin(), vec.end());
 #endif
 }
+#endif
 
 template<class T>
 QList<T> toList(const QSet<T> &set)
@@ -1293,6 +1313,16 @@ QList<T> toList(const QSet<T> &set)
     return set.toList();
 #else
     return QList<T>(set.begin(), set.end());
+#endif
+}
+
+template <class Key, class T>
+void addToHash(QHash<Key, T> *result, const QHash<Key, T> &additionalContents)
+{
+#if (QT_VERSION < QT_VERSION_CHECK(5, 15, 0))
+    result->unite(additionalContents);
+#else
+    result->insert(additionalContents);
 #endif
 }
 

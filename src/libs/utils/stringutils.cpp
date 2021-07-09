@@ -30,17 +30,19 @@
 #include <utils/algorithm.h>
 #include <utils/qtcassert.h>
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QJsonArray>
 #include <QJsonValue>
 #include <QRegularExpression>
 #include <QSet>
+#include <QTime>
 
 #include <limits.h>
 
 namespace Utils {
 
-UTILS_EXPORT QString settingsKey(const QString &category)
+QTCREATOR_UTILS_EXPORT QString settingsKey(const QString &category)
 {
     QString rc(category);
     const QChar underscore = '_';
@@ -67,7 +69,7 @@ static inline int commonPartSize(const QString &s1, const QString &s2)
     return size;
 }
 
-UTILS_EXPORT QString commonPrefix(const QStringList &strings)
+QTCREATOR_UTILS_EXPORT QString commonPrefix(const QStringList &strings)
 {
     switch (strings.size()) {
     case 0:
@@ -87,7 +89,7 @@ UTILS_EXPORT QString commonPrefix(const QStringList &strings)
     return strings.at(0).left(commonLength);
 }
 
-UTILS_EXPORT QString commonPath(const QStringList &files)
+QTCREATOR_UTILS_EXPORT QString commonPath(const QStringList &files)
 {
     QStringList appendedSlashes = Utils::transform(files, [](const QString &file) -> QString {
         if (!file.endsWith('/'))
@@ -107,7 +109,7 @@ UTILS_EXPORT QString commonPath(const QStringList &files)
     return common;
 }
 
-UTILS_EXPORT QString withTildeHomePath(const QString &path)
+QTCREATOR_UTILS_EXPORT QString withTildeHomePath(const QString &path)
 {
     if (HostOsInfo::isWindowsHost())
         return path;
@@ -226,7 +228,7 @@ int AbstractMacroExpander::findMacro(const QString &str, int *pos, QString *ret)
     }
 }
 
-UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx)
+QTCREATOR_UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx)
 {
     QString rsts;
 
@@ -236,14 +238,14 @@ UTILS_EXPORT void expandMacros(QString *str, AbstractMacroExpander *mx)
     }
 }
 
-UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx)
+QTCREATOR_UTILS_EXPORT QString expandMacros(const QString &str, AbstractMacroExpander *mx)
 {
     QString ret = str;
     expandMacros(&ret, mx);
     return ret;
 }
 
-UTILS_EXPORT QString stripAccelerator(const QString &text)
+QTCREATOR_UTILS_EXPORT QString stripAccelerator(const QString &text)
 {
     QString res = text;
     for (int index = res.indexOf('&'); index != -1; index = res.indexOf('&', index + 1))
@@ -251,7 +253,7 @@ UTILS_EXPORT QString stripAccelerator(const QString &text)
     return res;
 }
 
-UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
+QTCREATOR_UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
 {
     QTC_ASSERT(out, return false);
     if (value.isString()) {
@@ -259,7 +261,7 @@ UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
     } else if (value.isArray()) {
         QJsonArray array = value.toArray();
         QStringList lines;
-        foreach (const QJsonValue &v, array) {
+        for (const QJsonValue &v : array) {
             if (!v.isString())
                 return false;
             lines.append(v.toString());
@@ -271,7 +273,7 @@ UTILS_EXPORT bool readMultiLineString(const QJsonValue &value, QString *out)
     return true;
 }
 
-UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line)
+QTCREATOR_UTILS_EXPORT int parseUsedPortFromNetstatOutput(const QByteArray &line)
 {
     const QByteArray trimmed = line.trimmed();
     int base = 0;
@@ -383,4 +385,83 @@ QString quoteAmpersands(const QString &text)
     return result.replace("&", "&&");
 }
 
+QString formatElapsedTime(qint64 elapsed)
+{
+    elapsed += 500; // round up
+    const QString format = QString::fromLatin1(elapsed >= 3600000 ? "h:mm:ss" : "mm:ss");
+    const QString time = QTime(0, 0).addMSecs(elapsed).toString(format);
+    return QCoreApplication::translate("StringUtils", "Elapsed time: %1.").arg(time);
+}
+
+/*
+ * Basically QRegularExpression::wildcardToRegularExpression(), but let wildcards match
+ * path separators as well
+ */
+QString wildcardToRegularExpression(const QString &original)
+{
+#if QT_VERSION < QT_VERSION_CHECK(5, 10, 0)
+    using qsizetype = int;
+#endif
+    const qsizetype wclen = original.size();
+    QString rx;
+    rx.reserve(wclen + wclen / 16);
+    qsizetype i = 0;
+    const QChar *wc = original.data();
+
+    const QLatin1String starEscape(".*");
+    const QLatin1String questionMarkEscape(".");
+
+    while (i < wclen) {
+        const QChar c = wc[i++];
+        switch (c.unicode()) {
+        case '*':
+            rx += starEscape;
+            break;
+        case '?':
+            rx += questionMarkEscape;
+            break;
+        case '\\':
+        case '$':
+        case '(':
+        case ')':
+        case '+':
+        case '.':
+        case '^':
+        case '{':
+        case '|':
+        case '}':
+            rx += QLatin1Char('\\');
+            rx += c;
+            break;
+        case '[':
+            rx += c;
+            // Support for the [!abc] or [!a-c] syntax
+            if (i < wclen) {
+                if (wc[i] == QLatin1Char('!')) {
+                    rx += QLatin1Char('^');
+                    ++i;
+                }
+
+                if (i < wclen && wc[i] == QLatin1Char(']'))
+                    rx += wc[i++];
+
+                while (i < wclen && wc[i] != QLatin1Char(']')) {
+                    if (wc[i] == QLatin1Char('\\'))
+                        rx += QLatin1Char('\\');
+                    rx += wc[i++];
+                }
+            }
+            break;
+        default:
+            rx += c;
+            break;
+        }
+    }
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 12, 0)
+    return QRegularExpression::anchoredPattern(rx);
+#else
+    return "\\A" + rx + "\\z";
+#endif
+}
 } // namespace Utils

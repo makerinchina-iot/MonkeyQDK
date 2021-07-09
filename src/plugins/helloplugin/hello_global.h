@@ -1,0 +1,10 @@
+#ifndef HELLO_GLOBAL_H
+#define HELLO_GLOBAL_H
+
+#if defined(HELLOPLUGIN_LIBRARY)
+#  define HELLOPLUGIN_EXPORT Q_DECL_EXPORT
+#else
+#  define HELLOPLUGIN_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // HELLO_GLOBAL_H

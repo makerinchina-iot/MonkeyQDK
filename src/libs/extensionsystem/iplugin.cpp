@@ -30,8 +30,10 @@
 
 /*!
     \class ExtensionSystem::IPlugin
+    \inheaderfile extensionsystem/iplugin.h
     \inmodule QtCreator
     \ingroup mainclasses
+
     \brief The IPlugin class is an abstract base class that must be implemented
     once for each plugin.
 
@@ -62,7 +64,7 @@
 */
 
 /*!
-    \fn bool IPlugin::initialize(const QStringList &arguments, QString *errorString)
+    \fn bool ExtensionSystem::IPlugin::initialize(const QStringList &arguments, QString *errorString)
     Called after the plugin has been loaded and the IPlugin instance
     has been created.
 
@@ -79,7 +81,7 @@
 */
 
 /*!
-    \fn void IPlugin::extensionsInitialized()
+    \fn void ExtensionSystem::IPlugin::extensionsInitialized()
     Called after the initialize() function has been called,
     and after both the initialize() and \c extensionsInitialized()
     functions of plugins that depend on this plugin have been called.
@@ -94,7 +96,7 @@
 */
 
 /*!
-    \fn bool IPlugin::delayedInitialize()
+    \fn bool ExtensionSystem::IPlugin::delayedInitialize()
     Called after all plugins' extensionsInitialized() function has been called,
     and after the \c delayedInitialize() function of plugins that depend on this
     plugin have been called.
@@ -117,7 +119,7 @@
 */
 
 /*!
-    \fn IPlugin::ShutdownFlag IPlugin::aboutToShutdown()
+    \fn ExtensionSystem::IPlugin::ShutdownFlag ExtensionSystem::IPlugin::aboutToShutdown()
     Called during a shutdown sequence in the same order as initialization
     before the plugins get deleted in reverse order.
 
@@ -140,9 +142,9 @@
 */
 
 /*!
-    \fn QObject *IPlugin::remoteCommand(const QStringList &options,
-                                        const QString &workingDirectory,
-                                        const QStringList &arguments)
+    \fn QObject *ExtensionSystem::IPlugin::remoteCommand(const QStringList &options,
+                                           const QString &workingDirectory,
+                                           const QStringList &arguments)
 
     When \QC is executed with the \c -client argument while another \QC instance
     is running, this function of the plugin is called in the running instance.
@@ -161,7 +163,7 @@
 */
 
 /*!
-    \fn void IPlugin::asynchronousShutdownFinished()
+    \fn void ExtensionSystem::IPlugin::asynchronousShutdownFinished()
     Sent by the plugin implementation after an asynchronous shutdown
     is ready to proceed with the shutdown sequence.
 
@@ -207,12 +209,4 @@ QVector<QObject *> IPlugin::createTestObjects() const
 PluginSpec *IPlugin::pluginSpec() const
 {
     return d->pluginSpec;
-}
-
-void IPlugin::addObject(QObject *obj)
-{
-    PluginManager::addObject(obj);
-    connect(this, &IPlugin::destroyed, this, [=]{
-        PluginManager::removeObject(obj);
-    });
 }

@@ -28,13 +28,12 @@
 #include "extensionsystem_global.h"
 
 #include <QObject>
-#include <QtPlugin>
 
 namespace ExtensionSystem {
 
 namespace Internal {
-class IPluginPrivate;
-class PluginSpecPrivate;
+    class IPluginPrivate;
+    class PluginSpecPrivate;
 }
 
 class PluginManager;
@@ -54,7 +53,7 @@ public:
     ~IPlugin() override;
 
     virtual bool initialize(const QStringList &arguments, QString *errorString) = 0;
-    virtual void extensionsInitialized() = 0;
+    virtual void extensionsInitialized() {}
     virtual bool delayedInitialize() { return false; }
     virtual ShutdownFlag aboutToShutdown() { return SynchronousShutdown; }
     virtual QObject *remoteCommand(const QStringList & /* options */,
@@ -66,9 +65,6 @@ public:
 
 signals:
     void asynchronousShutdownFinished();
-
-protected:
-    void addObject(QObject *obj);
 
 private:
     Internal::IPluginPrivate *d;

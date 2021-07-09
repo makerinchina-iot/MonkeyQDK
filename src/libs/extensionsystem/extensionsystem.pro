@@ -6,19 +6,36 @@ DEFINES += EXTENSIONSYSTEM_LIBRARY
 
 LIBS += \
     -lutils \
+    -lagggregation \
 
-HEADERS += \
-    extensionsystem_global.h \
+QT += core widgets
+
+HEADERS += pluginerrorview.h \
+    plugindetailsview.h \
+    invoker.h \
     iplugin.h \
     iplugin_p.h \
-    optionsparser.h \
+    extensionsystem_global.h \
     pluginmanager.h \
     pluginmanager_p.h \
     pluginspec.h \
-    pluginspec_p.h
-
-SOURCES += \
+    pluginspec_p.h \
+    pluginview.h \
+    optionsparser.h \
+    pluginerroroverview.h
+SOURCES += pluginerrorview.cpp \
+    plugindetailsview.cpp \
+    invoker.cpp \
     iplugin.cpp \
-    optionsparser.cpp \
     pluginmanager.cpp \
-    pluginspec.cpp
+    pluginspec.cpp \
+    pluginview.cpp \
+    optionsparser.cpp \
+    pluginerroroverview.cpp
+FORMS += \
+    pluginerrorview.ui \
+    plugindetailsview.ui \
+    pluginerroroverview.ui
+
+RESOURCES += \
+    image.qrc

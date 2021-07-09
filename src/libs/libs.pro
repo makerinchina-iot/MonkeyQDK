@@ -4,4 +4,5 @@ CONFIG += ordered
 
 SUBDIRS += \
     utils \
-    extensionsystem
+    aggregation \
+    extensionsystem \

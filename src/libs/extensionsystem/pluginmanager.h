@@ -26,14 +26,15 @@
 #pragma once
 
 #include "extensionsystem_global.h"
+
 #include <aggregation/aggregate.h>
+#include <utils/qtcsettings.h>
 
 #include <QObject>
 #include <QStringList>
 
 QT_BEGIN_NAMESPACE
 class QTextStream;
-class QSettings;
 QT_END_NAMESPACE
 
 namespace ExtensionSystem {
@@ -62,8 +63,8 @@ public:
     template <typename T> static T *getObject()
     {
         QReadLocker lock(listLock());
-        QVector<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
+        const QVector<QObject *> all = allObjects();
+        for (QObject *obj : all) {
             if (T *result = qobject_cast<T *>(obj))
                 return result;
         }
@@ -72,41 +73,13 @@ public:
     template <typename T, typename Predicate> static T *getObject(Predicate predicate)
     {
         QReadLocker lock(listLock());
-        QVector<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
+        const QVector<QObject *> all = allObjects();
+        for (QObject *obj : all) {
             if (T *result = qobject_cast<T *>(obj))
                 if (predicate(result))
                     return result;
         }
         return 0;
-    }
-
-    template <typename T>
-    static QVector<T *> getObjects()
-    {
-        QReadLocker lock(listLock());
-        QVector<T *> results;
-        QVector<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
-            T *result = qobject_cast<T *>(obj);
-            if (result)
-                results += result;
-        }
-        return results;
-    }
-
-    template <typename T, typename Predicate>
-    static QVector<T *> getObjects(Predicate predicate)
-    {
-        QReadLocker lock(listLock());
-        QVector<T *> results;
-        QVector<QObject *> all = allObjects();
-        foreach (QObject *obj, all) {
-            T *result = qobject_cast<T *>(obj);
-            if (result && predicate(result))
-                results += result;
-        }
-        return results;
     }
 
     static QObject *getObjectByName(const QString &name);
@@ -122,22 +95,25 @@ public:
     static QHash<QString, QVector<PluginSpec *>> pluginCollections();
     static bool hasError();
     static const QStringList allErrors();
-    static QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
-    static QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsRequiringPlugin(PluginSpec *spec);
+    static const QSet<PluginSpec *> pluginsRequiredByPlugin(PluginSpec *spec);
+
+    static void checkForProblematicPlugins();
 
     // Settings
-    static void setSettings(QSettings *settings);
-    static QSettings *settings();
-    static void setGlobalSettings(QSettings *settings);
-    static QSettings *globalSettings();
+    static void setSettings(Utils::QtcSettings *settings);
+    static Utils::QtcSettings *settings();
+    static void setGlobalSettings(Utils::QtcSettings *settings);
+    static Utils::QtcSettings *globalSettings();
     static void writeSettings();
 
     // command line arguments
     static QStringList arguments();
+    static QStringList argumentsForRestart();
     static bool parseOptions(const QStringList &args,
-                             const QMap<QString, bool> &appOptions,
-                             QMap<QString, QString> *foundAppOptions,
-                             QString *errorString);
+        const QMap<QString, bool> &appOptions,
+        QMap<QString, QString> *foundAppOptions,
+        QString *errorString);
     static void formatOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
     static void formatPluginOptions(QTextStream &str, int optionIndentation, int descriptionIndentation);
     static void formatPluginVersions(QTextStream &str);
@@ -152,11 +128,10 @@ public:
 
     static bool isInitializationDone();
 
-public slots:
-    void remoteArguments(const QString &serializedArguments, QObject *socket);
-    void shutdown();
+    static void remoteArguments(const QString &serializedArguments, QObject *socket);
+    static void shutdown();
 
-    //QString systemInformation() const;
+//    static QString systemInformation();
 
 signals:
     void objectAdded(QObject *obj);

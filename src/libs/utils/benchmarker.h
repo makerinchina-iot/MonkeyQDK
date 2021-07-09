@@ -36,7 +36,7 @@ QT_END_NAMESPACE
 
 namespace Utils {
 
-class UTILS_EXPORT Benchmarker
+class QTCREATOR_UTILS_EXPORT Benchmarker
 {
 public:
     Benchmarker(const QString &testsuite, const QString &testcase,

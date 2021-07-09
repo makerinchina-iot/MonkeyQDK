@@ -41,9 +41,12 @@
 QT_BEGIN_NAMESPACE
 class QTime;
 class QTimer;
-class QSettings;
 class QEventLoop;
 QT_END_NAMESPACE
+
+namespace Utils {
+class QtcSettings;
+}
 
 namespace ExtensionSystem {
 
@@ -65,18 +68,19 @@ public:
     void removeObject(QObject *obj);
 
     // Plugin operations
+//    void checkForProblematicPlugins();
     void loadPlugins();
     void shutdown();
     void setPluginPaths(const QStringList &paths);
-    QVector<ExtensionSystem::PluginSpec *> loadQueue();
+    const QVector<ExtensionSystem::PluginSpec *> loadQueue();
     void loadPlugin(PluginSpec *spec, PluginSpec::State destState);
     void resolveDependencies();
     void enableDependenciesIndirectly();
     void initProfiling();
     void profilingSummary() const;
     void profilingReport(const char *what, const PluginSpec *spec = nullptr);
-    void setSettings(QSettings *settings);
-    void setGlobalSettings(QSettings *settings);
+    void setSettings(Utils::QtcSettings *settings);
+    void setGlobalSettings(Utils::QtcSettings *settings);
     void readSettings();
     void writeSettings();
 
@@ -118,12 +122,13 @@ public:
     QEventLoop *shutdownEventLoop = nullptr; // used for async shutdown
 
     QStringList arguments;
+    QStringList argumentsForRestart;
     QScopedPointer<QElapsedTimer> m_profileTimer;
     QHash<const PluginSpec *, int> m_profileTotal;
     int m_profileElapsedMS = 0;
     unsigned m_profilingVerbosity = 0;
-    QSettings *settings = nullptr;
-    QSettings *globalSettings = nullptr;
+    Utils::QtcSettings *settings = nullptr;
+    Utils::QtcSettings *globalSettings = nullptr;
 
     // Look in argument descriptions of the specs for the option.
     PluginSpec *pluginForOption(const QString &option, bool *requiresArgument) const;
@@ -136,6 +141,7 @@ public:
     mutable QReadWriteLock m_lock;
 
     bool m_isInitializationDone = false;
+    bool enableCrashCheck = true;
 
 private:
     PluginManager *q;

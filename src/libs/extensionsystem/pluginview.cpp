@@ -30,7 +30,7 @@
 
 #include <utils/algorithm.h>
 #include <utils/categorysortfiltermodel.h>
-#include <utils/utilsicons.h>
+//#include <utils/utilsicons.h>
 #include <utils/itemviews.h>
 #include <utils/qtcassert.h>
 
@@ -91,21 +91,38 @@ static const int SortRole = Qt::UserRole + 1;
 
 static const QIcon &icon(IconIndex icon)
 {
+    static QIcon i;
     switch (icon) {
     case OkIcon: {
-        static const QIcon ok = Utils::Icons::OK.icon();
-        return ok;
+        i.addFile(QLatin1String(":/images/ok.png"));
+        return i;
     }
     case ErrorIcon: {
-        static const QIcon error = Utils::Icons::BROKEN.icon();
-        return error;
+        i.addFile(QLatin1String(":/images/broken.png"));
+        return i;
     }
-    default:
     case NotLoadedIcon: {
-        static const QIcon notLoaded = Utils::Icons::NOTLOADED.icon();
-        return notLoaded;
+        i.addFile(QLatin1String(":/images/notloaded.png"));
+        return i;
     }
     }
+    return i;
+
+//    switch (icon) {
+//    case OkIcon: {
+//        static const QIcon ok = Utils::Icons::OK.icon();
+//        return ok;
+//    }
+//    case ErrorIcon: {
+//        static const QIcon error = Utils::Icons::BROKEN.icon();
+//        return error;
+//    }
+//    default:
+//    case NotLoadedIcon: {
+//        static const QIcon notLoaded = Utils::Icons::NOTLOADED.icon();
+//        return notLoaded;
+//    }
+//    }
 }
 
 class PluginItem : public TreeItem

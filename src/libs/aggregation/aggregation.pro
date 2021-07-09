@@ -1,15 +1,11 @@
 include(../../libs.pri)
 
-QT += core
+TARGET = agggregation
 
 DEFINES += AGGREGATION_LIBRARY
-#TARGET = $$replaceLibName(aggregation)
-TARGET = aggregation
 
-HEADERS += \
-    aggregate.h \
+HEADERS = aggregate.h \
     aggregation_global.h
 
-SOURCES += \
-    aggregate.cpp \
+SOURCES = aggregate.cpp
 

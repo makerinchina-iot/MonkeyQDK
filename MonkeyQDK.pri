@@ -1,5 +1,5 @@
 
-CONFIG += c++14
+CONFIG += c++17 c++1z
 
 # app.exe and lib dll path
 APP_OUT_PATH = $$PWD/build/bin
@@ -14,7 +14,7 @@ APP_PLUGIN_PATH = $$PWD/build/bin/plugins
 INCLUDEPATH += $$PWD/src/libs
 DEPENDPATH  += $$PWD/src/libs
 
-//coreplugin
+#coreplugin
 INCLUDEPATH += $$PWD/src/plugins
 DEPENDPATH  += $$PWD/src/plugins
 

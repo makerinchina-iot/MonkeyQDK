@@ -39,7 +39,7 @@
 
 namespace Utils {
 
-class UTILS_EXPORT HostOsInfo
+class QTCREATOR_UTILS_EXPORT HostOsInfo
 {
 public:
     static constexpr OsType hostOs()
