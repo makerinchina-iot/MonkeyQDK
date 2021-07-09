@@ -1,0 +1,11 @@
+{
+    "Name"           :  "SerialPlugin",
+    "Version"        :  "0.0.1" ,
+    "CompatVersion"  :  "0.0.1",
+    "Required"       :  true,
+    "Vendor"         :  "MakerInChina" ,
+    "Copyright"      :  "(C) 2021 The Qt Inc" ,
+    "License"        :  "GPL",
+    "Category"       :  "Tool" ,
+    "Description"    :  "serial tool plugins"
+}

@@ -4,4 +4,6 @@ CONFIG += ordered
 
 SUBDIRS += \
     coreplugin \
-    helloplugin
+    helloplugin \
+    serialplugin \
+
