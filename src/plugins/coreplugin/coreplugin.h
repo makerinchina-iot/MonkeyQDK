@@ -9,6 +9,8 @@
 #include <QStackedWidget>
 #include <QVBoxLayout>
 
+#include "fancytabwidget/fancytabwidget.h"
+
 class CorePlugin : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
@@ -28,6 +30,10 @@ private:
     QButtonGroup *m_pageButtons;
     QVBoxLayout *m_buttonLayout;
     QStackedWidget *m_pageStacks;
+
+    FancyTabWidgetUtils::FancyTabWidget *m_fancyTabWidgt;
+
+    static int m_tabIndex;
 
 private slots:
     void settingsDialog();

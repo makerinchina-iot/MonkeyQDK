@@ -14,10 +14,13 @@
 #include <coreplugin/fancypage.h>
 
 #include "systemsettings.h"
+//#include "fancytabwidget/fancytabwidget.h"
+
 #include "homepage.h"
 #include "toolpage.h"
 
 using namespace Core;
+using namespace FancyTabWidgetUtils;
 
 bool CorePlugin::initialize(const QStringList &, QString *)
 {
@@ -38,21 +41,22 @@ bool CorePlugin::initialize(const QStringList &, QString *)
     mwin->addToolBar(Qt::TopToolBarArea,mainToolbar);
 
     //add page layout
-    QWidget *mainWidget = new QWidget(mwin);
-    QHBoxLayout *mainLayout = new QHBoxLayout(mainWidget);
-    mainWidget->setLayout(mainLayout);
-    m_pageButtons = new QButtonGroup(mainWidget);
-    m_pageStacks = new QStackedWidget(mainWidget);
-    m_buttonLayout = new QVBoxLayout(mainWidget);
-    m_buttonLayout->setContentsMargins(0,0,0,0);
-    m_buttonLayout->setSpacing(0);
+//    QWidget *mainWidget = new QWidget(mwin);
+//    QHBoxLayout *mainLayout = new QHBoxLayout(mainWidget);
+//    mainWidget->setLayout(mainLayout);
+//    m_pageButtons = new QButtonGroup(mainWidget);
+//    m_pageStacks = new QStackedWidget(mainWidget);
+//    m_buttonLayout = new QVBoxLayout(mainWidget);
+//    m_buttonLayout->setContentsMargins(0,0,0,0);
+//    m_buttonLayout->setSpacing(0);
 
-    mainLayout->addLayout(m_buttonLayout);
-    mainLayout->addWidget(m_pageStacks);
-    mainLayout->setStretch(0,2);
-    mainLayout->setStretch(1,8);
+//    mainLayout->addLayout(m_buttonLayout);
+//    mainLayout->addWidget(m_pageStacks);
+//    mainLayout->setStretch(0,2);
+//    mainLayout->setStretch(1,8);
 
-    mwin->setCentralWidget(mainWidget);
+    m_fancyTabWidgt = new FancyTabWidget();
+    mwin->setCentralWidget(m_fancyTabWidgt);
     mwin->setMinimumSize(800,600);
 
     m_mainWindow.reset(mwin);
@@ -64,16 +68,18 @@ bool CorePlugin::initialize(const QStringList &, QString *)
     ExtensionSystem::PluginManager::addObject(new HomePage());
 
     //tool page load
-    ExtensionSystem::PluginManager::addObject(new ToolPage());
+//    ExtensionSystem::PluginManager::addObject(new ToolPage());
 
     return true;
 }
+
+int CorePlugin::m_tabIndex = 0;
 
 void CorePlugin::extensionsInitialized()
 {
    QVector<QObject*> pagesObject = ExtensionSystem::PluginManager::allObjects();
 
-   QPushButton *homeBtn = nullptr;
+//   QPushButton *homeBtn = nullptr;
 
    for(QObject* objPage:pagesObject){
        FancyPage *page = qobject_cast<FancyPage*>(objPage);
@@ -84,18 +90,24 @@ void CorePlugin::extensionsInitialized()
 
        qDebug()<<" pages button add:"<<page->pageButton()->text();
 
-       if(page->pageButton()->objectName() == "Home"){
-           homeBtn = page->pageButton();
-       }
+//       if(page->pageButton()->objectName() == "Home"){
+//           homeBtn = page->pageButton();
+//       }
 
-       m_pageButtons->addButton(page->pageButton());
-       m_buttonLayout->addWidget(page->pageButton());
-       m_pageStacks->addWidget(page->pageWidget());
+       m_fancyTabWidgt->insertTab(m_tabIndex, page->pageWidget(),QIcon(":/icon/image/mode_Design.png"), page->pageButton()->objectName());
+        m_fancyTabWidgt->setTabEnabled(m_tabIndex,true);
 
-       connect(page->pageButton(),&QPushButton::clicked,[=](){
-           m_pageStacks->setCurrentWidget(page->pageWidget());
-           page->pageButton()->setChecked(true);
-       });
+       m_tabIndex++;
+
+//       m_pageButtons->addButton(page->pageButton());
+//       m_buttonLayout->addWidget(page->pageButton());
+
+//       m_pageStacks->addWidget(page->pageWidget());
+
+//       connect(page->pageButton(),&QPushButton::clicked,[=](){
+//           m_pageStacks->setCurrentWidget(page->pageWidget());
+//           page->pageButton()->setChecked(true);
+//       });
 
        //remove from plugin pool
        connect(this, &IPlugin::destroyed, this, [=]{
@@ -104,9 +116,9 @@ void CorePlugin::extensionsInitialized()
    }
 
    //init page
-   homeBtn->setChecked(true);
+//   homeBtn->setChecked(true);
 
-   m_buttonLayout->addStretch();
+//   m_buttonLayout->addStretch();
 
 
 }

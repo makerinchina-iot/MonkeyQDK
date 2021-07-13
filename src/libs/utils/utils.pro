@@ -18,6 +18,7 @@ SOURCES += \
     qtcsettings.cpp \
     stringutils.cpp \
     treemodel.cpp \
+    stylehelper.cpp \
 
 HEADERS += \
     algorithm.h \
@@ -36,3 +37,4 @@ HEADERS += \
     stringutils.h \
     treemodel.h \
     utils_global.h \
+    stylehelper.h \

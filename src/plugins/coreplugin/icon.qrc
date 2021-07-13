@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>image/mode_Design.png</file>
+        <file>image/mode_Edit.png</file>
+    </qresource>
+</RCC>

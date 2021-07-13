@@ -17,6 +17,8 @@ HEADERS += \
     dialogs/ioptionspage.h \
     dialogs/settingsdialog.h \
     fancypage.h \
+    fancytabwidget/fancybutton.h \
+    fancytabwidget/fancytabwidget.h \
     homepage.h \
     systemsettings.h \
     toolpage.h
@@ -26,6 +28,8 @@ SOURCES += \
     dialogs/ioptionspage.cpp \
     dialogs/settingsdialog.cpp \
     fancypage.cpp \
+    fancytabwidget/fancybutton.cpp \
+    fancytabwidget/fancytabwidget.cpp \
     homepage.cpp \
     systemsettings.cpp \
     toolpage.cpp
@@ -36,5 +40,8 @@ DISTFILES += \
 FORMS += \
     SystemSettings.ui \
     dialogs/settingsdialog.ui
+
+RESOURCES += \
+    icon.qrc
 
 
