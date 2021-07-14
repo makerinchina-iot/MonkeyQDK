@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>image/settingscategory.png</file>
+        <file>image/examples.png</file>
     </qresource>
 </RCC>

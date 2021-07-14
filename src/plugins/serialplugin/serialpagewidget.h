@@ -5,6 +5,8 @@
 #include <QSerialPort>
 #include <QSerialPortInfo>
 
+#include <serialcontrol.h>
+
 namespace Ui {
 class SerialPageWidget;
 }
@@ -22,6 +24,8 @@ private:
 
     QList<QSerialPortInfo> m_ports;
     QList<qint32> m_baudRates;
+
+    SerialControl *m_serialContrl;
 
 private slots:
     void sendInput();

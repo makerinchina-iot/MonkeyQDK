@@ -4,6 +4,7 @@
 
 SerialPage::SerialPage()
 {
-    setButtonName("SerialTool");
+    setButtonName("Serial");
+    setButtonIcon(QIcon(":/icon/image/serialmonitor.png"));
     setWidget(new SerialPageWidget);
 }

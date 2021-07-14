@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>image/serialmonitor.png</file>
+    </qresource>
+</RCC>

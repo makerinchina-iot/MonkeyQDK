@@ -30,5 +30,6 @@ HelloPage::HelloPage()
     mainLayout->addWidget(btn);
 
     setButtonName("Hello");
+    setButtonIcon(QIcon(":/image/examples.png"));
     setWidget(helloWidget);
 }

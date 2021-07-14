@@ -15,15 +15,18 @@ class CORE_EXPORT FancyPage : public QObject
 public:
     explicit FancyPage(QObject *parent = nullptr);
 
-    QPushButton *pageButton();
     QWidget *pageWidget();
+    QString pageBtnName() const;
+    QIcon   pageBtnIcon() const;
 
 private:
-    QPushButton *m_pageButton;
+    QString m_buttonName;
     QWidget *m_pageWidget;
+    QIcon m_buttonIcon;
 
 protected:
     void setButtonName(const QString &text);
+    void setButtonIcon(const QIcon &icon);
     void setWidget(QWidget *widget);
 
 signals:

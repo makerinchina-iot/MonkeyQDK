@@ -6,6 +6,7 @@
 #include <QToolBar>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QMenu>
 
 #include <coreplugin/dialogs/ioptionspage.h>
 #include <coreplugin/dialogs/settingsdialog.h>
@@ -14,10 +15,9 @@
 #include <coreplugin/fancypage.h>
 
 #include "systemsettings.h"
-//#include "fancytabwidget/fancytabwidget.h"
+#include "fancytabwidget/fancybutton.h"
 
 #include "homepage.h"
-#include "toolpage.h"
 
 using namespace Core;
 using namespace FancyTabWidgetUtils;
@@ -32,6 +32,7 @@ bool CorePlugin::initialize(const QStringList &, QString *)
     mwin->setWindowTitle("MonkeyQDK 0.01 by MakerInChina");
 
     QAction *actSetting = new QAction("setting");
+    actSetting->setIcon(QIcon(":/icon/image/options.png"));
     connect(actSetting,&QAction::triggered,this,&CorePlugin::settingsDialog);
 
     QToolBar *mainToolbar = new QToolBar("ToolBar",mwin);
@@ -40,24 +41,19 @@ bool CorePlugin::initialize(const QStringList &, QString *)
 
     mwin->addToolBar(Qt::TopToolBarArea,mainToolbar);
 
-    //add page layout
-//    QWidget *mainWidget = new QWidget(mwin);
-//    QHBoxLayout *mainLayout = new QHBoxLayout(mainWidget);
-//    mainWidget->setLayout(mainLayout);
-//    m_pageButtons = new QButtonGroup(mainWidget);
-//    m_pageStacks = new QStackedWidget(mainWidget);
-//    m_buttonLayout = new QVBoxLayout(mainWidget);
-//    m_buttonLayout->setContentsMargins(0,0,0,0);
-//    m_buttonLayout->setSpacing(0);
-
-//    mainLayout->addLayout(m_buttonLayout);
-//    mainLayout->addWidget(m_pageStacks);
-//    mainLayout->setStretch(0,2);
-//    mainLayout->setStretch(1,8);
-
     m_fancyTabWidgt = new FancyTabWidget();
     mwin->setCentralWidget(m_fancyTabWidgt);
     mwin->setMinimumSize(800,600);
+
+    FancyButton *btn = new FancyButton(m_fancyTabWidgt);
+    btn->setIcon(QIcon(":/icon/image/options.png"));
+//    btn->setBaseSize(48,48);
+
+    QMenu *mainCornerMenu = new QMenu;
+    mainCornerMenu->addAction(new QAction(QIcon(":/icon/image/options.png"), "settings"));
+    mainCornerMenu->addAction(new QAction(QIcon(":/icon/image/edit.png"), "account"));
+
+    m_fancyTabWidgt->insertCornerWidget(0, btn);
 
     m_mainWindow.reset(mwin);
 
@@ -66,9 +62,6 @@ bool CorePlugin::initialize(const QStringList &, QString *)
 
     //home page load
     ExtensionSystem::PluginManager::addObject(new HomePage());
-
-    //tool page load
-//    ExtensionSystem::PluginManager::addObject(new ToolPage());
 
     return true;
 }
@@ -79,8 +72,6 @@ void CorePlugin::extensionsInitialized()
 {
    QVector<QObject*> pagesObject = ExtensionSystem::PluginManager::allObjects();
 
-//   QPushButton *homeBtn = nullptr;
-
    for(QObject* objPage:pagesObject){
        FancyPage *page = qobject_cast<FancyPage*>(objPage);
 
@@ -88,26 +79,12 @@ void CorePlugin::extensionsInitialized()
            continue;
        }
 
-       qDebug()<<" pages button add:"<<page->pageButton()->text();
+       qDebug()<<" pages to add:"<<page->pageBtnName();
 
-//       if(page->pageButton()->objectName() == "Home"){
-//           homeBtn = page->pageButton();
-//       }
-
-       m_fancyTabWidgt->insertTab(m_tabIndex, page->pageWidget(),QIcon(":/icon/image/mode_Design.png"), page->pageButton()->objectName());
-        m_fancyTabWidgt->setTabEnabled(m_tabIndex,true);
+       m_fancyTabWidgt->insertTab(m_tabIndex, page->pageWidget(),page->pageBtnIcon(), page->pageBtnName());
+       m_fancyTabWidgt->setTabEnabled(m_tabIndex,true);
 
        m_tabIndex++;
-
-//       m_pageButtons->addButton(page->pageButton());
-//       m_buttonLayout->addWidget(page->pageButton());
-
-//       m_pageStacks->addWidget(page->pageWidget());
-
-//       connect(page->pageButton(),&QPushButton::clicked,[=](){
-//           m_pageStacks->setCurrentWidget(page->pageWidget());
-//           page->pageButton()->setChecked(true);
-//       });
 
        //remove from plugin pool
        connect(this, &IPlugin::destroyed, this, [=]{
@@ -116,10 +93,8 @@ void CorePlugin::extensionsInitialized()
    }
 
    //init page
-//   homeBtn->setChecked(true);
 
-//   m_buttonLayout->addStretch();
-
+   m_fancyTabWidgt->setCurrentIndex(0);
 
 }
 

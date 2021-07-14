@@ -20,8 +20,7 @@ HEADERS += \
     fancytabwidget/fancybutton.h \
     fancytabwidget/fancytabwidget.h \
     homepage.h \
-    systemsettings.h \
-    toolpage.h
+    systemsettings.h
 
 SOURCES += \
     coreplugin.cpp \
@@ -31,8 +30,7 @@ SOURCES += \
     fancytabwidget/fancybutton.cpp \
     fancytabwidget/fancytabwidget.cpp \
     homepage.cpp \
-    systemsettings.cpp \
-    toolpage.cpp
+    systemsettings.cpp
 
 DISTFILES += \
     coreplugin.json

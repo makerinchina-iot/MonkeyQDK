@@ -38,3 +38,6 @@ FORMS += \
     SerialSettingsWidget.ui \
     serialpagewidget.ui
 
+RESOURCES += \
+    res.qrc
+
