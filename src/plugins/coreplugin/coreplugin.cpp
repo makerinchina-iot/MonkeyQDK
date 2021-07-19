@@ -47,11 +47,8 @@ bool CorePlugin::initialize(const QStringList &, QString *)
 
     FancyButton *btn = new FancyButton(m_fancyTabWidgt);
     btn->setIcon(QIcon(":/icon/image/options.png"));
-//    btn->setBaseSize(48,48);
-
-    QMenu *mainCornerMenu = new QMenu;
-    mainCornerMenu->addAction(new QAction(QIcon(":/icon/image/options.png"), "settings"));
-    mainCornerMenu->addAction(new QAction(QIcon(":/icon/image/edit.png"), "account"));
+    btn->setIconSize(QSize(48,32));
+    connect(btn,&FancyButton::clicked,actSetting,&QAction::triggered);
 
     m_fancyTabWidgt->insertCornerWidget(0, btn);
 

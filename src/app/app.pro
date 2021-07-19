@@ -15,3 +15,6 @@ SOURCES += \
     main.cpp
 
 DESTDIR = $$APP_OUT_PATH
+
+#icon
+RC_FILE += app_icon.rc
