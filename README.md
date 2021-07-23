@@ -10,4 +10,4 @@ https://makerinchina.cn/qtcreator%e6%8f%92%e4%bb%b6%e6%a1%86%e6%9e%b6%e5%ad%a6%e
 
 - screenshot：
 
- ![](https://github.com/makerinchina-iot/MonkeyQDK/blob/master/screenshot.png)
+ ![](screenshot.png)
